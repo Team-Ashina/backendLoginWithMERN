@@ -13,6 +13,7 @@ app.use(express.static('public'));//"use" se implementa como un middleware, o se
 //Parsear el body directamente desde express mediante middleware
 app.use(express.json());
 
+//Organizador de rutas en archivo externo siempre que exista el prefijo /api/auth
 app.use('/api/auth',require('./routes/auth'));
 
 

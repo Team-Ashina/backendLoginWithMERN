@@ -1,11 +1,14 @@
 const express = require('express'); //inicializaicion de backend express
 const dotenv= require('dotenv');//incorporando dotenv para usar variables globales propias
+const { dbConnection } = require('./database/config');
 //levantar las variables de globales en archivo ".env"
 dotenv.config();//El valor de las variables globales se obtiene accediendo a la variable de node "process.env" por ejemplo "process.env.PORT"
 
 //Inciando funcion de express como backend
 const app = express();
 
+//Base de datos
+dbConnection();
 
 //Asignacion carpeta publica
 app.use(express.static('public'));//"use" se implementa como un middleware, o sea, permite hacer una validacion antes de enviar a una ruta. En este caso, antes de ver cualquier ruta raiz("http://localhost/") envia a preguntar a la carpeta public

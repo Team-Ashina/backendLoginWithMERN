@@ -1,20 +1,40 @@
 const {response, request} = require('express');
 const { validationResult } = require('express-validator');
+const User = require('../models/User');
 
-const Register = (req=request,res=response)=>{
+const Register = async(request=request,response=response)=>{
     
+    try {
+        const userValidationDBEmail = User.findOne({email:request.body.email})
+
+        if(userValidationDBEmail){
+            return response.status(400).json({
+                ok:false,
+                msg:'The email already exist.'
+            }); 
+        }
+        const user = new User(request.body);
+        
+        
+        await user.save();
     
-    return res.status(201).json({
+        return response.status(201).json({
         ok:true,
-        msg:'Creado correctamente'
+        msg:'correctly created'
     }); 
+    } catch (error) {
+        return response.status(500).json({
+            ok:false,
+            msg:`Is valid but can´t be inserted.`
+        }); 
+    }
 };
 
-const Login = (req=request,res=response)=>{
+const Login = (request=request,response=response)=>{
     
-    return res.status(200).json({
+    return response.status(200).json({
         ok:true,
-        msg:'Logeado correctamente'
+        msg:'Correctly logged'
     }); 
 };
 

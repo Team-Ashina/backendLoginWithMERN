@@ -2,7 +2,8 @@ const {Router} = require('express');
 const { check } = require('express-validator');
 const router = Router();
 
-const {Delete,Login,Details,Register} = require('../controller/auth')
+const {Delete,Login,Details,Register} = require('../controllers/auth');
+const {validarCampos} = require('../middlewares/validar-campos');
 
 router.post(
 //Ruta de la solicitud /api/auth/register
@@ -12,7 +13,8 @@ router.post(
     check('firstName','The first name is required and have to be between 3 and 20 characters').notEmpty().isLength({min:3,max:20}),
     check('lastName','The last name is required and have to be between 3 and 20 characters').notEmpty().isLength({min:3,max:20}),
     check('email',`The email is required and should have the format 'name@domain.foo'`).notEmpty().isEmail(),
-    check('password', 'The password should be between 8 and 20 characters').notEmpty().isLength({min:8,max:20})
+    check('password', 'The password should be between 8 and 20 characters').notEmpty().isLength({min:8,max:20}),
+    validarCampos
 
 ],
 //funcion en el controlador
@@ -23,7 +25,8 @@ router.post(
 [
 //Middleware (validaciones)
     check('email',`The email is required and should have the format 'name@domain.foo'`).notEmpty().isEmail(),
-    check('password', 'Password format not valid too short').notEmpty().isLength({min:8,max:20})
+    check('password', 'Password format not valid too short').notEmpty().isLength({min:8,max:20}),
+    validarCampos
 ],
 //funcion en el controlador
 Login);

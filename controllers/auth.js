@@ -3,21 +3,19 @@ const { validationResult } = require('express-validator');
 
 const Register = (req=request,res=response)=>{
     
-    //validar si cumple los check del middleware
-        //si validationResult(parametro request) alias "lista de errores" no está vacia, validar algo<  
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({
-            ok:false,
-            errors:errors.mapped()
-        })
-    }
-    return res.json({...req.body}); 
+    
+    return res.status(201).json({
+        ok:true,
+        msg:'Creado correctamente'
+    }); 
 };
 
 const Login = (req=request,res=response)=>{
     
-    res.json({...req.body}); 
+    return res.status(200).json({
+        ok:true,
+        msg:'Logeado correctamente'
+    }); 
 };
 
 const Delete = (req=request,res=response)=>{

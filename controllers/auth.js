@@ -1,55 +1,83 @@
-const {response, request} = require('express');
-const { validationResult } = require('express-validator');
+const { response, request } = require('express');
+const { GenerateJWT } = require('../helpers/jwt');
+const { EncriptarPalabra, CompareKeys } = require('../helpers/password-manager');
+const { ResponseBadRequest, ResponseCreated, ResponseOk, ResponseServerError } = require('../helpers/response-returns');
+
 const User = require('../models/User');
 
-const Register = async(request=request,response=response)=>{
-    
-    try {
-        const userValidationDBEmail = User.findOne({email:request.body.email})
+const Register = async (req = request, res = response) => {
 
-        if(userValidationDBEmail){
-            return response.status(400).json({
-                ok:false,
-                msg:'The email already exist.'
-            }); 
+    try {
+        const { email } = req.body;
+
+        const userValidationDBEmail = await User.findOne({ email });
+        if (userValidationDBEmail) {
+            return ResponseBadRequest(res, { msg: 'This email already exist.' });
         }
-        const user = new User(request.body);
-        
-        
-        await user.save();
-    
-        return response.status(201).json({
-        ok:true,
-        msg:'correctly created'
-    }); 
+        const newUser = new User(req.body);
+        newUser.password = EncriptarPalabra(newUser.password);
+
+        await newUser.save();
+
+        const _token = await GenerateJWT(newUser.id,`${newUser.firstName} ${newUser.lastName}`)
+
+        return ResponseCreated(res, {
+            msg: 'User correctly created.',
+            uid: newUser.id,
+            name: `${newUser.firstName} ${newUser.lastName}`,
+            
+        });
+
     } catch (error) {
-        return response.status(500).json({
-            ok:false,
-            msg:`Is valid but can´t be inserted.`
-        }); 
+
+        return ResponseServerError(res, { msg: `Is valid but can´t be inserted.` })
     }
 };
 
-const Login = (request=request,response=response)=>{
-    
-    return response.status(200).json({
-        ok:true,
-        msg:'Correctly logged'
-    }); 
+const Login = async (req = request, res = response) => {
+    try {
+        const { email, password } = req.body;
+        const userFound = await User.findOne({ email });
+
+        if (!userFound) {
+            return ResponseBadRequest(res, { msg: 'Error of authentication, email invalid' });
+        }
+
+        const validatePassword = CompareKeys(password, userFound.password);
+        if (!validatePassword) {
+            return ResponseBadRequest(res, { msg: 'Error of authentication, password invalid.' });
+        }
+
+        const _token = await GenerateJWT(userFound.id,`${userFound.firstName} ${userFound.lastName}`)
+
+        return ResponseOk(res, {
+            uid: userFound.id,
+            name: `${userFound.firstName} ${userFound.lastName}`,
+            _token
+        });
+
+
+    } catch (error) {
+        console.error(error);
+        return ResponseServerError(res, { msg: `Error inside the system, contact with your administrator.` });
+
+    }
+
 };
 
-const Delete = (req=request,res=response)=>{
-    
-    res.json({...req.body}); 
+const Delete = (req = request, res = response) => {
+
+    res.json({ ...req.body });
 };
 
-const Details = (req=request,res=response)=>{
-    
-    res.json({...req.body}); 
+const Details = (req = request, res = response) => {
+
+    res.json({ ...req.body });
 };
-module.exports ={
+module.exports = {
     Register,
     Login,
     Delete,
     Details
 };
+

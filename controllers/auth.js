@@ -19,12 +19,13 @@ const Register = async (req = request, res = response) => {
 
         await newUser.save();
 
-        const _token = await GenerateJWT(newUser.id,`${newUser.firstName} ${newUser.lastName}`)
+        const token = await GenerateJWT(newUser.id,`${newUser.firstName} ${newUser.lastName}`)
 
         return ResponseCreated(res, {
             msg: 'User correctly created.',
             uid: newUser.id,
             name: `${newUser.firstName} ${newUser.lastName}`,
+            token
             
         });
 
@@ -48,12 +49,12 @@ const Login = async (req = request, res = response) => {
             return ResponseBadRequest(res, { msg: 'Error of authentication, password invalid.' });
         }
 
-        const _token = await GenerateJWT(userFound.id,`${userFound.firstName} ${userFound.lastName}`)
+        const token = await GenerateJWT(userFound.id,`${userFound.firstName} ${userFound.lastName}`)
 
         return ResponseOk(res, {
             uid: userFound.id,
             name: `${userFound.firstName} ${userFound.lastName}`,
-            _token
+            token
         });
 
 

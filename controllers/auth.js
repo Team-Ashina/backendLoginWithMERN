@@ -1,6 +1,6 @@
 const { response, request } = require('express');
 const { GenerateJWT } = require('../helpers/jwt');
-const { EncriptarPalabra, CompareKeys } = require('../helpers/password-manager');
+const { EncryptKey, CompareKeys } = require('../helpers/password-manager');
 const { ResponseBadRequest, ResponseCreated, ResponseOk, ResponseServerError } = require('../helpers/response-returns');
 
 const User = require('../models/User');
@@ -10,24 +10,22 @@ const Register = async (req = request, res = response) => {
     try {
         const { email } = req.body;
 
-        const userValidationDBEmail = await User.findOne({ email });
-        if (userValidationDBEmail) {
-            return ResponseBadRequest(res, { msg: 'This email already exist.' });
-        }
+        const validateEmailUserDb = await User.findOne({ email });
+        if (validateEmailUserDb) return ResponseBadRequest(res, { msg: 'This email already exist.' });
+        
         const newUser = new User(req.body);
-        newUser.password = EncriptarPalabra(newUser.password);
+        newUser.password = EncryptKey(newUser.password);
 
         await newUser.save();
 
-        const token = await GenerateJWT(newUser.id,`${newUser.firstName} ${newUser.lastName}`)
+        const token = await GenerateJWT(newUser.id, `${newUser.firstName} ${newUser.lastName}`)
 
-        return ResponseCreated(res, {
-            msg: 'User correctly created.',
-            uid: newUser.id,
-            name: `${newUser.firstName} ${newUser.lastName}`,
-            token
-            
-        });
+        return ResponseCreated(res,
+            {
+                msg: 'User correctly created.',
+                token
+
+            });
 
     } catch (error) {
 
@@ -49,7 +47,7 @@ const Login = async (req = request, res = response) => {
             return ResponseBadRequest(res, { msg: 'Error of authentication, password invalid.' });
         }
 
-        const token = await GenerateJWT(userFound.id,`${userFound.firstName} ${userFound.lastName}`)
+        const token = await GenerateJWT(userFound.id, `${userFound.firstName} ${userFound.lastName}`)
 
         return ResponseOk(res, {
             uid: userFound.id,
@@ -66,12 +64,18 @@ const Login = async (req = request, res = response) => {
 
 };
 
-const Delete = (req = request, res = response) => {
+const ReNewToken = async (req = request, res = response) => {
+    const { uid, name } = req;
+    const token = await GenerateJWT(uid, name);
+    return ResponseOk(res, { token })
+};
+
+const Details = (req = request, res = response) => {
 
     res.json({ ...req.body });
 };
 
-const Details = (req = request, res = response) => {
+const Delete = (req = request, res = response) => {
 
     res.json({ ...req.body });
 };
@@ -79,6 +83,7 @@ module.exports = {
     Register,
     Login,
     Delete,
-    Details
+    Details,
+    ReNewToken
 };
 

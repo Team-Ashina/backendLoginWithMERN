@@ -15,7 +15,7 @@ const GenerateJWT = (uid, name) => {
                     console.log(errorTokenSigning.message);
                     reject(`Can't generate token`);
                 }
-                console.log('token: ',tokenSigned);
+                
                 resolve(tokenSigned);
             }
         )

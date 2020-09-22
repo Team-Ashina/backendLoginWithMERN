@@ -2,9 +2,15 @@ const {Router} = require('express');
 const { check } = require('express-validator');
 const router = Router();
 
-const {Delete,Login,Details,Register} = require('../controllers/auth');
+const {
+    Delete,
+    Login,
+    Details,
+    Register,
+    ReNewToken
+} = require('../controllers/auth');
+const { validJWT } = require('../middlewares/managing-token');
 const {validarCampos} = require('../middlewares/validar-campos');
-
 router.post(
 //Ruta de la solicitud /api/auth/register
     '/register',
@@ -30,6 +36,10 @@ router.post(
 ],
 //funcion en el controlador
 Login);
+//valida todo lo que se encuentre debajo de "router.use(validJWT);" con el middlware validJWT
+router.use(validJWT);
+
+router.post('/renew',ReNewToken);
 
 router.post('/details',Details);
 router.post('/delete',Delete);  

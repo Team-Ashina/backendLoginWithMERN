@@ -1,9 +1,10 @@
 const { response } = require('express');
 
 
-const ResponseBadRequest = (res = response, props) => {
-    return res.status(400).json({
-        ok: false,
+
+const ResponseOk = (res = response, props) => {
+    return res.status(200).json({
+        ok: true,
         ...props
     })
 }
@@ -15,9 +16,16 @@ const ResponseCreated = (res = response, props) => {
     })
 }
 
-const ResponseOk = (res = response, props) => {
-    return res.status(200).json({
-        ok: true,
+const ResponseBadRequest = (res = response, props) => {
+    return res.status(400).json({
+        ok: false,
+        ...props
+    })
+}
+
+const ResponseUnauthorized = (res = response, props) => {
+    return res.status(401).json({
+        ok: false,
         ...props
     })
 }
@@ -29,9 +37,11 @@ const ResponseServerError = (res = response, props) => {
     })
 }
 
+
 module.exports = {
     ResponseBadRequest,
     ResponseCreated,
     ResponseOk,
-    ResponseServerError
+    ResponseServerError,
+    ResponseUnauthorized
 }
